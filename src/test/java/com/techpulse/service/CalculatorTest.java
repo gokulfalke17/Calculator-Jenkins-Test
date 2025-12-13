@@ -11,7 +11,7 @@ public class CalculatorTest {
     @Test
     void testAdd() {
         int add = calculator.add(5, 10);
-        assertEquals(15, add);
+        assertEquals(20, add);
     }
 
     @Test
