@@ -1,0 +1,74 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK17'              // Jenkins → Tools → JDK
+        maven 'Maven3.9.11'      // Jenkins → Tools → Maven
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo '🔄 Checking out code from GitHub...'
+                git branch: 'main',
+                    credentialsId: 'github-creds',
+                    url: 'https://github.com/gokulfalke17/Calculator-Jenkins-Test.git'
+            }
+        }
+
+        stage('Build & Compile') {
+            steps {
+                echo '⚙️ Building project...'
+                script {
+                    if (isUnix()) {
+                        sh 'mvn clean compile'
+                    } else {
+                        bat 'mvn clean compile'
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo '🧪 Running unit tests...'
+                script {
+                    if (isUnix()) {
+                        sh 'mvn test'
+                    } else {
+                        bat 'mvn test'
+                    }
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                echo '📦 Packaging application...'
+                script {
+                    if (isUnix()) {
+                        sh 'mvn package'
+                    } else {
+                        bat 'mvn package'
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    post {
+        always {
+            echo '📝 Publishing test results...'
+            junit '**/target/surefire-reports/*.xml'
+        }
+        success {
+            echo '🚀 Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline failed!'
+        }
+    }
+}
