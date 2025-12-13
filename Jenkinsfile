@@ -1,29 +1,29 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     tools {
         jdk 'JDK17'
         maven 'Maven3'
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                echo 'Checkout from GitHub'
+                echo 'Checking out source code'
                 git branch: 'main',
                     url: 'https://github.com/gokulfalke17/Calculator-Jenkins-Test.git'
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
-                bat 'mvn clean compile'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat 'mvn test'
+                echo 'Building and testing application'
+                bat 'mvn clean test'
             }
         }
     }
@@ -31,6 +31,12 @@ pipeline {
     post {
         always {
             junit 'target/surefire-reports/*.xml'
+        }
+        success {
+            echo 'Build and tests completed successfully'
+        }
+        failure {
+            echo 'Build or tests failed'
         }
     }
 }
